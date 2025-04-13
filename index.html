@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FLAMES Calculator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@500&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Quicksand', sans-serif;
+      background: #000;
+      overflow: hidden;
+    }
+
+    video.bg-video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      filter: brightness(0.4);
+    }
+
+    .bubble {
+      position: fixed;
+      border-radius: 50%;
+      background: rgba(255, 105, 180, 0.3);
+      animation: float 20s infinite ease-in-out;
+      z-index: -1;
+    }
+
+    .bubble:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 20%; animation-delay: 0s; }
+    .bubble:nth-child(2) { width: 100px; height: 100px; top: 30%; left: 70%; animation-delay: 4s; }
+    .bubble:nth-child(3) { width: 50px; height: 50px; top: 60%; left: 40%; animation-delay: 2s; }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-60px); }
+      100% { transform: translateY(0); }
+    }
+
+    .flames-card {
+      backdrop-filter: blur(15px);
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      box-shadow: 0 8px 32px rgba(255, 0, 128, 0.5);
+      padding: 2.5rem;
+      max-width: 550px;
+      width: 100%;
+      margin: auto;
+      animation: fadeInDown 1s ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .form-control:focus {
+      border-color: #ff4da6;
+      box-shadow: 0 0 10px #ff4da6;
+      transition: all 0.3s ease;
+    }
+
+    .result-box {
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 15px;
+      color: #fff;
+      animation: fadeInUp 0.8s forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    h2 {
+      font-family: 'Pacifico', cursive;
+      color: #fff;
+      text-shadow: 2px 2px 5px #ff1493;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      0% {
+        text-shadow: 0 0 10px #ff4da6, 0 0 20px #ff4da6, 0 0 30px #ff4da6;
+      }
+      100% {
+        text-shadow: 0 0 20px #ff4da6, 0 0 30px #ff4da6, 0 0 40px #ff4da6;
+      }
+    }
+
+    .btn-glow {
+      background: #ff4da6;
+      color: white;
+      border: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px #ff66b2;
+      padding: 10px 0;
+      font-size: 1.1rem;
+    }
+
+    .btn-glow:hover {
+      background: #ff3385;
+      box-shadow: 0 0 20px #ff66b2;
+      transform: translateY(-2px);
+    }
+
+    .icon {
+      font-size: 3rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <video autoplay muted loop class="bg-video">
+    <source src="https://assets.mixkit.co/videos/preview/mixkit-hearts-floating-up-2833-large.mp4" type="video/mp4">
+  </video>
+
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="flames-card animate__animated animate__fadeInDown">
+      <h2 class="text-center mb-4 animate__animated animate__pulse animate__infinite">💘 FLAMES Calculator 💘</h2>
+      <form id="flamesForm">
+        <div class="mb-3">
+          <label for="name1" class="form-label text-white">Your Name</label>
+          <input type="text" class="form-control" id="name1" placeholder="e.g., Alex" required>
+        </div>
+        <div class="mb-3">
+          <label for="name2" class="form-label text-white">Partner's Name</label>
+          <input type="text" class="form-control" id="name2" placeholder="e.g., Jamie" required>
+        </div>
+        <button type="submit" class="btn btn-glow w-100">💖 Find Out 💖</button>
+      </form>
+      <div id="result" class="result-box d-none"></div>
+    </div>
+  </div>
+
+  <script>
+    const flamesForm = document.getElementById("flamesForm");
+    const resultBox = document.getElementById("result");
+
+    const icons = {
+      "Friends": "fas fa-user-friends",
+      "Love": "fas fa-heart",
+      "Affection": "fas fa-smile",
+      "Marriage": "fas fa-ring",
+      "Enemy": "fas fa-skull-crossbones",
+      "Siblings": "fas fa-users"
+    };
+
+    const colors = {
+      "Friends": "#00bfff",
+      "Love": "#ff69b4",
+      "Affection": "#ff6347",
+      "Marriage": "#ff1493",
+      "Enemy": "#dc143c",
+      "Siblings": "#32cd32"
+    };
+
+    flamesForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      let name1 = document.getElementById("name1").value.toLowerCase().replace(/[^a-z]/g, "");
+      let name2 = document.getElementById("name2").value.toLowerCase().replace(/[^a-z]/g, "");
+
+      // Remove common characters
+      let a = [...name1];
+      let b = [...name2];
+
+      for (let i = 0; i < a.length; i++) {
+        let index = b.indexOf(a[i]);
+        if (index !== -1) {
+          a.splice(i, 1);
+          b.splice(index, 1);
+          i--;
+        }
+      }
+
+      let count = a.length + b.length;
+      const flames = ["Friends", "Love", "Affection", "Marriage", "Enemy", "Siblings"];
+
+      let index = 0;
+      for (let i = 0; flames.length > 1; i++) {
+        index = (index + count - 1) % flames.length;
+        flames.splice(index, 1);
+      }
+
+      const relationship = flames[0];
+      const icon = icons[relationship];
+      const color = colors[relationship];
+
+      resultBox.classList.remove("d-none");
+      resultBox.style.backgroundColor = color;
+      resultBox.innerHTML = `<i class="${icon} icon"></i><br>💓 Your relationship is: ${relationship} 💓`;
+    });
+  </script>
+</body>
+</html>
